@@ -4,7 +4,7 @@
 '''
 
 
-from collections import OrderedDict
+from typing import Any, Optional
 from base_caching import BaseCaching
 
 
@@ -15,23 +15,37 @@ class FIFOCache(BaseCaching):
 
     def __init__(self):
         super().__init__()
-        self.cache_data = OrderedDict()
 
-    def put(self, key, item):
-        '''assign to the dictionary `self.cache_data` the
-           `item` value for the key `key`
+    def put(self, key: Any, item: Any) -> None:
+        '''put method for adding data to cache
         '''
+        if key is not None and item is not None:
+            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                cached_data = list(self.cache_data.keys())
+                first_key = cached_data[0]
 
-        if key is None or item is None:
-            return
+                self.cache_data.pop(first_key)
 
-        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            first_key, _ = self.cache_data.popitem(last=False)
-            print(f"DISCARD: {first_key}")
+                print("DISCARD: {}".formart(first_key))
 
-        self.cache_data[key] = item
+                del first_key
+            self.cache_data[key] = item
 
-    def get(self, key):
-        '''return the value in `self.cache_data` linked to `key`
+    def get(self, key: Any) -> Optional[Any]:
+        '''get method for reteiving cache
         '''
-        return self.cache_data.get(key, None)
+        return self.cache_data.get(key)
+
+if __name__ == "__main__":
+    my_cache = FIFOCache()
+    my_cache.put("A", "Hello")
+    my_cache.put("B", "World")
+    my_cache.put("C", "ALX")
+    my_cache.put("D", "School")
+    my_cache.print_cache()
+    my_cache.put("E", "Battery")
+    my_cache.print_cache()
+    my_cache.put("C", "Street")
+    my_cache.print_cache()
+    my_cache.put("F", "Mission")
+    my_cache.print_cache()
