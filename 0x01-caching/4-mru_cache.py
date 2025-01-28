@@ -1,59 +1,38 @@
 #!/usr/bin/env python3
-""" 4-mru_cache Module """
+"""Task 4: MRU Caching.
+"""
+from collections import OrderedDict
 
-BaseCaching = __import__('base_caching').BaseCaching
+from base_caching import BaseCaching
 
 
 class MRUCache(BaseCaching):
+    """A class `MRUCache` that inherits
+       from `BaseCaching` and is a caching system
     """
-    MRUCache Class
-
-    Implements the MRU (Most Recently Used) caching algorithm
-    """
-
     def __init__(self):
-        """ Initialize the MRUCache object """
-
+        """Initializes the cache.
+        """
         super().__init__()
-        self.keys = []
+        self.cache_data = OrderedDict()
 
     def put(self, key, item):
+        """Adds an item in the cache.
         """
-        Add an item to the cache
-
-        Args:
-            key: The key for the item.
-            item: The value of the item.
-
-        Return:
-            Nothing, If the key or item is None,
-            Otherwise, assigns item to key in cache_data dictionary.
-        """
-
-        if key is not None and item is not None:
+        if key is None or item is None:
+            return
+        if key not in self.cache_data:
+            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
+                mru_key, _ = self.cache_data.popitem(False)
+                print("DISCARD:", mru_key)
             self.cache_data[key] = item
-            if key not in self.keys:
-                self.keys.append(key)
-            else:
-                self.keys.append(self.keys.pop(self.keys.index(key)))
-            if len(self.keys) > BaseCaching.MAX_ITEMS:
-                discard = self.keys.pop(-2)
-                del self.cache_data[discard]
-                print('DISCARD: {:s}'.format(discard))
+            self.cache_data.move_to_end(key, last=False)
+        else:
+            self.cache_data[key] = item
 
     def get(self, key):
+        """Retrieves an item by key.
         """
-        Get an item from the cache
-
-        Args:
-            key: The key of the item to retrieve.
-
-        Returns:
-            The value of key in the cache_data dictionary,
-            or None if key is None or does not exist
-        """
-
         if key is not None and key in self.cache_data:
-            self.keys.append(self.keys.pop(self.keys.index(key)))
-            return self.cache_data[key]
-        return None
+            self.cache_data.move_to_end(key, last=False)
+        return self.cache_data.get(key, None)
